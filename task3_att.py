@@ -1,4 +1,4 @@
-# Яким Алексей ПИ17-1, вариант 1 (номер по списку 15)
+# Новак Ян ПИ17-1, вариант – 1 (номер по списку – 8)
 #
 # Задание:
 # 1. Невероятно популярная испаноязычная поисковая система Goog проводит огромный объем
@@ -25,8 +25,8 @@
 # Предложите алгоритм с полиномиальным временем, который находит расписание с минимальным
 # временем завершения.
 #
-# Примечание: словесное описание подходов к решению задачи и алгоритма представлены ниже,
-# в блоке `if __name__ == "__main__":`, который является входной точкой в программу.
+# Примечание: Описание подходов к решению задачи представлены ниже в блоке `if __name__ == "__main__":`,
+# который является входной точкой в программу.
 
 from typing import List, Dict, Tuple
 
@@ -88,34 +88,34 @@ def runExperiment(
         print(f"-- Experiment: {expName} --")
 
     queue = sortByKey(tasks)
-    queueAnalyzeStats = analyzeQueue(queue)
-    analytics["f_sort"] = queueAnalyzeStats
+    queue_analyze_stats = analyzeQueue(queue)
+    analytics["f_sort"] = queue_analyze_stats
     if printExperimentNames:
         print("--- F Sort ---")
     if printResultedQueue:
         print(showQueue(queue))
     if printAnalyticStats:
-        print(f"\t{queueAnalyzeStats}")
+        print(f"\t{queue_analyze_stats}")
 
     queue = sortByKey(tasks, "p")
-    queueAnalyzeStats = analyzeQueue(queue)
-    analytics["p_sort"] = queueAnalyzeStats
+    queue_analyze_stats = analyzeQueue(queue)
+    analytics["p_sort"] = queue_analyze_stats
     if printExperimentNames:
         print("--- P Sort ---")
     if printResultedQueue:
         print(showQueue(queue))
     if printAnalyticStats:
-        print(f"\t{queueAnalyzeStats}")
+        print(f"\t{queue_analyze_stats}")
 
     queue = sortByAttitude(tasks, ("p", "f"))
-    queueAnalyzeStats = analyzeQueue(queue)
-    analytics["attitude_sort"] = queueAnalyzeStats
+    queue_analyze_stats = analyzeQueue(queue)
+    analytics["attitude_sort"] = queue_analyze_stats
     if printExperimentNames:
         print("--- Attitude Sort ---")
     if printResultedQueue:
         print(showQueue(queue))
     if printAnalyticStats:
-        print(f"\t{queueAnalyzeStats}")
+        print(f"\t{queue_analyze_stats}")
 
     if printExperimentNames:
         print("--- Coef Sum Sort ---")
@@ -125,25 +125,25 @@ def runExperiment(
             print(f"\t-- sorting with coef: p={coef}, f={1 - coef}")
 
         queue = sortByCoefSum(tasks, coef, 1 - coef)
-        queueAnalyzeStats = analyzeQueue(queue)
-        analytics[f"coef_sort_{coef}"] = queueAnalyzeStats
+        queue_analyze_stats = analyzeQueue(queue)
+        analytics[f"coef_sort_{coef}"] = queue_analyze_stats
         if printResultedQueue:
             print(showQueue(queue))
         if printAnalyticStats:
-            print(f"\t\t{queueAnalyzeStats}")
+            print(f"\t\t{queue_analyze_stats}")
 
+    print('Experiment finished successfully.\n\n')
     return analytics
 
 
 if __name__ == "__main__":
-    # исходя из условия задачи, все операции p на суперкомпьютере выполняются последовательно,
-    # что означает константное время выполнения операций на суперкомпьютере, равное сумме всех p.
-    # так же, по условию задачи все операции f могут выполняться параллельно и независимо друг
-    # от друга, даже если мы запускаем все N операций одновременно, однако операции f не могут
-    # быть запущены до выполнения соответствующей им операции p. таким образом, поиск минимального
-    # времени работы всего процесса индексации сводится к поиску минимального остаточного
-    # времени - времени, необходимого для окончания самой поздней (с точки зрения завершения)
-    # операции f.
+    # В условии сказано, что все операции на суперкомпьютере (p)  выполняются последовательно.
+    # Это означает, что время их выполнения константно и равно сумме всех p.
+    # Все операции на рабочих станциях (f) могут выполняться параллельно и независимо друг
+    # от друга, при этом кол-во рабочих станций гарантируется как n+1, где n – общее кол-во задач.
+    # Операция f не может быть запущена до выполнения соответствующей операции p.
+    # Исходя из всего этого, наша задача – найти такую очередь задач, при которой остаточное время,
+    # необходимое для окончания самой поздней (с точки зрения завершения) операции f минимально.
 
     # рассмотрим следующие варианты сортировки:
     # 1. сортировка заданий по убыванию времени операций f
@@ -169,28 +169,31 @@ if __name__ == "__main__":
     #    в то время как алгоритм может вернуть последовательность [1, 2], при этом суммарное время
     #    будет равно 160, то есть равные коэффициенты дают различные решения
 
-    # так же был предложен вариант решения, когда мы ищем такие задания, у которых сумма
-    # продолжительности выполнрения операций f нескольких заданий будет меньше или равна
-    # продолжительности оперции p любого другого задания. данный вариант может быть оптимален только
-    # в том случае, когда мы имеем только два параллельных потока выполнения, предназначенных отдельно
-    # для операций p и f, при этом для выполнения оперций f предварительно должны быть выполнены все
-    # операции p соответствующих заданий. однако по условию мы обладаем ресурсами для параллельного
-    # выполнения всех операций f, то есть у нас `1+n` параллельных потоков, где n - число заданий.
-    # следовательно, данное решение не является оптимальным, так как просто не имеет смысла пытаться
-    # выполнить несколько операций f в период выполнения одной операции p (ведь это также приводит
-    # к поиску оптимальной очереди для предвыполнения оперций p соответствующих заданиям искомых
-    # операций f)
+    # При первой попытке защиты этого решения, был предложен вариант оптимизации,
+    # который схематично выглядит примерно так:
+    # p-flow : ——————————————|
+    # f-flow : ————|———-|————|
+    #
+    # Очевидно, что он имеет смысл только, когда мы имеет лишь одну рабочую станцию для выполнения задач f.
+    # При этом мы допускаем, что есть еще своя очередь для задач f, прошедших этап p.
+    #
+    # Добиться такой ситуации можно вот как:
+    # 1) Находим такие задачи, для которых p намного меньше f
+    # 2) Быстро прогоняем их через p –> они попадают в очередь на f
+    # 3) Когда очередь на f достаточно большая, мы запускаем большую задачу на p
+    #
+    # Как было сказано, в нашем случае это не имеет смысла.
+    # Кол-во рабочих станций гарантированно как n + 1 и никакой очереди для f физически не может быть.
 
-    # исходя из четырех рассмотренных решений, мы упираемся в оптимальный алгоритм сортировки
+    # Исходя из четырех рассмотренных решений, мы упираемся в оптимальный алгоритм сортировки
     # во всех четырех решениях, поэтому следует оптимизировать алгоритм сортировки.
     #
-    # для удобства возьмем встроенную в язык программирования Python функцию sorted, которая
+    # Для удобства возьмем встроенную в язык программирования Python функцию sorted, которая
     # возвращает отсортированный массив в соответствии с переданным ключом.
     #
-    # временная сложность встроенного алгоритма сортировки - O(n*log(n)) в лучшем случае, что
+    # Временная сложность встроенного алгоритма сортировки - O(n*log(n)) в лучшем случае, что
     # так же соответствует временной сложности в общем случае, и O(n^2) в худшем случае.
-    #
-    # это соответствует алгоритму быстрой сортировки, который является жадным алгоритмом:
+    # Это соответствует алгоритму быстрой сортировки, который является жадным алгоритмом:
     # 1. случайным образом выбирается опорный элемент массива (обычно - середина массива)
     # 2. остальные элементы массива сравниваются с опорным и, если они меньше опорного,
     #    помещаются в левую часть массива, иначе - в правую
@@ -198,7 +201,8 @@ if __name__ == "__main__":
     #    элементов), если отрезок имеет длину не более двух - вернуть отсортированный отрезок,
     #    метод сортировки в данном случае - сравнение обоих элементов отрезка
 
-    # для чистоты эксперимента реализуем все 4 рассмотренных решения для различных наборов данных:
+    # Для подтверждения теории на практике реализуем все 4 рассмотренных решения для различных наборов данных:
+
     basic_random_case = [
         {'p': 10, 'f': 20},
         {'p': 5, 'f': 10},
@@ -210,19 +214,35 @@ if __name__ == "__main__":
         {'p': 13, 'f': 15},
         {'p': 9, 'f': 9},
     ]
-
-    p_gt_f_case = [
-        {'p': 14, 'f': 4},
-        {'p': 9, 'f': 8},
-        {'p': 2, 'f': 2},
-        {'p': 30, 'f': 19},
-        {'p': 17, 'f': 17},
-        {'p': 27, 'f': 12},
-        {'p': 10, 'f': 7},
-        {'p': 11, 'f': 2},
-        {'p': 21, 'f': 14},
-        {'p': 27, 'f': 7}
-    ]
+    runExperiment(basic_random_case, "Basic")
+    # output >>>
+    # -- Experiment: Basic --
+    # --- F Sort ---
+    # 	{'p_time': 93, 'f_time': 101}
+    # --- P Sort ---
+    # 	{'p_time': 93, 'f_time': 122}
+    # --- Attitude Sort ---
+    # 	{'p_time': 93, 'f_time': 122}
+    # --- Coef Sum Sort ---
+    # 	-- sorting with coef: p=0.1, f=0.9
+    # 		{'p_time': 93, 'f_time': 101}
+    # 	-- sorting with coef: p=0.2, f=0.8
+    # 		{'p_time': 93, 'f_time': 102}
+    # 	-- sorting with coef: p=0.3, f=0.7
+    # 		{'p_time': 93, 'f_time': 103}
+    # 	-- sorting with coef: p=0.4, f=0.6
+    # 		{'p_time': 93, 'f_time': 103}
+    # 	-- sorting with coef: p=0.5, f=0.5
+    # 		{'p_time': 93, 'f_time': 103}
+    # 	-- sorting with coef: p=0.6, f=0.4
+    # 		{'p_time': 93, 'f_time': 103}
+    # 	-- sorting with coef: p=0.7, f=0.30000000000000004
+    # 		{'p_time': 93, 'f_time': 108}
+    # 	-- sorting with coef: p=0.8, f=0.19999999999999996
+    # 		{'p_time': 93, 'f_time': 117}
+    # 	-- sorting with coef: p=0.9, f=0.09999999999999998
+    # 		{'p_time': 93, 'f_time': 117}
+    # Experiment finished successfully.
 
     f_gt_p_case = [
         {'p': 10, 'f': 16},
@@ -236,6 +256,77 @@ if __name__ == "__main__":
         {'p': 0, 'f': 21},
         {'p': 25, 'f': 28}
     ]
+    runExperiment(f_gt_p_case, "All 'f' are greater than 'p'")
+    # output >>>
+    # -- Experiment: All 'f' are greater than 'p' --
+    # --- F Sort ---
+    # 	{'p_time': 107, 'f_time': 119}
+    # --- P Sort ---
+    # 	{'p_time': 107, 'f_time': 128}
+    # --- Attitude Sort ---
+    # 	{'p_time': 107, 'f_time': 128}
+    # --- Coef Sum Sort ---
+    # 	-- sorting with coef: p=0.1, f=0.9
+    # 		{'p_time': 107, 'f_time': 119}
+    # 	-- sorting with coef: p=0.2, f=0.8
+    # 		{'p_time': 107, 'f_time': 119}
+    # 	-- sorting with coef: p=0.3, f=0.7
+    # 		{'p_time': 107, 'f_time': 119}
+    # 	-- sorting with coef: p=0.4, f=0.6
+    # 		{'p_time': 107, 'f_time': 124}
+    # 	-- sorting with coef: p=0.5, f=0.5
+    # 		{'p_time': 107, 'f_time': 124}
+    # 	-- sorting with coef: p=0.6, f=0.4
+    # 		{'p_time': 107, 'f_time': 124}
+    # 	-- sorting with coef: p=0.7, f=0.30000000000000004
+    # 		{'p_time': 107, 'f_time': 124}
+    # 	-- sorting with coef: p=0.8, f=0.19999999999999996
+    # 		{'p_time': 107, 'f_time': 128}
+    # 	-- sorting with coef: p=0.9, f=0.09999999999999998
+    # 		{'p_time': 107, 'f_time': 128}
+    # Experiment finished successfully.
+
+    p_gt_f_case = [
+        {'p': 14, 'f': 4},
+        {'p': 9, 'f': 8},
+        {'p': 2, 'f': 2},
+        {'p': 30, 'f': 19},
+        {'p': 17, 'f': 17},
+        {'p': 27, 'f': 12},
+        {'p': 10, 'f': 7},
+        {'p': 11, 'f': 2},
+        {'p': 21, 'f': 14},
+        {'p': 27, 'f': 7}
+    ]
+    runExperiment(p_gt_f_case, "All 'p' are greater than 'f'")
+    # output >>>
+    # -- Experiment: All 'p' are greater than 'f' --
+    # --- F Sort ---
+    # 	{'p_time': 168, 'f_time': 170}
+    # --- P Sort ---
+    # 	{'p_time': 168, 'f_time': 174}
+    # --- Attitude Sort ---
+    # 	{'p_time': 168, 'f_time': 185}
+    # --- Coef Sum Sort ---
+    # 	-- sorting with coef: p=0.1, f=0.9
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.2, f=0.8
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.3, f=0.7
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.4, f=0.6
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.5, f=0.5
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.6, f=0.4
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.7, f=0.30000000000000004
+    # 		{'p_time': 168, 'f_time': 170}
+    # 	-- sorting with coef: p=0.8, f=0.19999999999999996
+    # 		{'p_time': 168, 'f_time': 174}
+    # 	-- sorting with coef: p=0.9, f=0.09999999999999998
+    # 		{'p_time': 168, 'f_time': 174}
+    # Experiment finished successfully.
 
     mixed_case = [
         {'p': 9, 'f': 26},
@@ -249,124 +340,43 @@ if __name__ == "__main__":
         {'p': 9, 'f': 4},
         {'p': 14, 'f': 8}
     ]
-
-    # небольшое пояснение к выводимым данным: 'p_time' - время окончания работы последнего
-    # процесса p, 'f_time' - время окончания работы последнего процесса f. таким образом,
-    # искомое остаточное время равно `f_time - p_time`
-
-    runExperiment(basic_random_case, "Basic")
-    # output >>>
-    # --- F Sort ---
-    #         {'p_time': 93, 'f_time': 101}
-    # --- P Sort ---
-    #         {'p_time': 93, 'f_time': 122}
-    # --- Attitude Sort ---
-    #         {'p_time': 93, 'f_time': 122}
-    # --- Coef Sum Sort ---
-    #         -- sorting with coef: p=0.1, f=0.9
-    #                 {'p_time': 93, 'f_time': 101}
-    #         -- sorting with coef: p=0.2, f=0.8
-    #                 {'p_time': 93, 'f_time': 102}
-    #         -- sorting with coef: p=0.3, f=0.7
-    #                 {'p_time': 93, 'f_time': 103}
-    #         -- sorting with coef: p=0.4, f=0.6
-    #                 {'p_time': 93, 'f_time': 103}
-    #         -- sorting with coef: p=0.5, f=0.5
-    #                 {'p_time': 93, 'f_time': 103}
-    #         -- sorting with coef: p=0.6, f=0.4
-    #                 {'p_time': 93, 'f_time': 103}
-    #         -- sorting with coef: p=0.7, f=0.30000000000000004
-    #                 {'p_time': 93, 'f_time': 108}
-    #         -- sorting with coef: p=0.8, f=0.19999999999999996
-    #                 {'p_time': 93, 'f_time': 117}
-    #         -- sorting with coef: p=0.9, f=0.09999999999999998
-    #                 {'p_time': 93, 'f_time': 117}
-
-    runExperiment(f_gt_p_case, "All 'f' are greater than 'p'")
-    # output >>>
-    # --- F Sort ---
-    #         {'p_time': 92, 'f_time': 99}
-    # --- P Sort ---
-    #         {'p_time': 92, 'f_time': 111}
-    # --- Attitude Sort ---
-    #         {'p_time': 92, 'f_time': 117}
-    # --- Coef Sum Sort ---
-    #         -- sorting with coef: p=0.1, f=0.9
-    #                 {'p_time': 92, 'f_time': 99}
-    #         -- sorting with coef: p=0.2, f=0.8
-    #                 {'p_time': 92, 'f_time': 99}
-    #         -- sorting with coef: p=0.3, f=0.7
-    #                 {'p_time': 92, 'f_time': 101}
-    #         -- sorting with coef: p=0.4, f=0.6
-    #                 {'p_time': 92, 'f_time': 101}
-    #         -- sorting with coef: p=0.5, f=0.5
-    #                 {'p_time': 92, 'f_time': 101}
-    #         -- sorting with coef: p=0.6, f=0.4
-    #                 {'p_time': 92, 'f_time': 102}
-    #         -- sorting with coef: p=0.7, f=0.30000000000000004
-    #                 {'p_time': 92, 'f_time': 102}
-    #         -- sorting with coef: p=0.8, f=0.19999999999999996
-    #                 {'p_time': 92, 'f_time': 102}
-    #         -- sorting with coef: p=0.9, f=0.09999999999999998
-    #                 {'p_time': 92, 'f_time': 102}
-
-    runExperiment(p_gt_f_case, "All 'p' are greater than 'f'")
-    # output >>>
-    # --- F Sort ---
-    #         {'p_time': 201, 'f_time': 202}
-    # --- P Sort ---
-    #         {'p_time': 201, 'f_time': 205}
-    # --- Attitude Sort ---
-    #         {'p_time': 201, 'f_time': 226}
-    # --- Coef Sum Sort ---
-    #         -- sorting with coef: p=0.1, f=0.9
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.2, f=0.8
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.3, f=0.7
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.4, f=0.6
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.5, f=0.5
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.6, f=0.4
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.7, f=0.30000000000000004
-    #                 {'p_time': 201, 'f_time': 202}
-    #         -- sorting with coef: p=0.8, f=0.19999999999999996
-    #                 {'p_time': 201, 'f_time': 205}
-    #         -- sorting with coef: p=0.9, f=0.09999999999999998
-    #                 {'p_time': 201, 'f_time': 205}
-
     runExperiment(mixed_case, "Mixed case: both f > p and p > f")
     # output >>>
+    # -- Experiment: Mixed case: both f > p and p > f --
     # --- F Sort ---
-    #         {'p_time': 123, 'f_time': 129}
+    # 	{'p_time': 133, 'f_time': 134}
     # --- P Sort ---
-    #         {'p_time': 123, 'f_time': 153}
+    # 	{'p_time': 133, 'f_time': 143}
     # --- Attitude Sort ---
-    #         {'p_time': 123, 'f_time': 153}
+    # 	{'p_time': 133, 'f_time': 159}
     # --- Coef Sum Sort ---
-    #         -- sorting with coef: p=0.1, f=0.9
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.2, f=0.8
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.3, f=0.7
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.4, f=0.6
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.5, f=0.5
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.6, f=0.4
-    #                 {'p_time': 123, 'f_time': 129}
-    #         -- sorting with coef: p=0.7, f=0.30000000000000004
-    #                 {'p_time': 123, 'f_time': 137}
-    #         -- sorting with coef: p=0.8, f=0.19999999999999996
-    #                 {'p_time': 123, 'f_time': 144}
-    #         -- sorting with coef: p=0.9, f=0.09999999999999998
-    #                 {'p_time': 123, 'f_time': 150}
+    # 	-- sorting with coef: p=0.1, f=0.9
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.2, f=0.8
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.3, f=0.7
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.4, f=0.6
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.5, f=0.5
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.6, f=0.4
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.7, f=0.30000000000000004
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.8, f=0.19999999999999996
+    # 		{'p_time': 133, 'f_time': 136}
+    # 	-- sorting with coef: p=0.9, f=0.09999999999999998
+    # 		{'p_time': 133, 'f_time': 143}
+    # Experiment finished successfully.
 
-    # в результате четырех экспериментов и эксперимента с интервалами видно, что время работы
+
+    # Небольшое пояснение к выводимым данным:
+    # 'p_time' - время окончания работы последнего процесса p,
+    # 'f_time' - время окончания работы последнего процесса f.
+    # Таким образом, искомое остаточное время равно `f_time - p_time`
+
+    # В результате четырех экспериментов и эксперимента с интервалами видно, что время работы
     # суперкомпьютера, как и предполагалось, константно и не меняется от решения к решению,
     # в то время как результирующее время индексирования зависело от способа сортировки:
     # сортировка по продолжительности операций f стабильно выдает лучший результат, при этом
@@ -374,8 +384,7 @@ if __name__ == "__main__":
     # критерия p, однако коэффициент зависит от входных данных, что позволяет предположить
     # о незначимости учета продолжительности операций p при оптимизации времени индексации
 
-    # итог: оптимизация достигается за счет сортировки заданий по параметру f, сортировка
-    # производится при помощи жадного алгоритма - быстрая сортировка, - действующего по
-    # принципу "разделяй и властвуй", временная сложность алгоритма быстрой сортировки в общем
-    # случае равна O(n*log(n)), что является наилучшим результатом для всех известных алгоритмов
-    # сортировки
+    # Итог: оптимизация достигается за счет сортировки заданий по параметру f, сортировка
+    # производится при помощи жадного алгоритма быстрой сортировки, действующего по
+    # принципу "разделяй и властвуй". Временная сложность в общем случае равна O(n*log(n)),
+    # что является наилучшим результатом для всех известных алгоритмов сортировки
